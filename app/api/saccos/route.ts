@@ -7,7 +7,7 @@ import { audit } from '@/lib/audit'
 const schema = z.object({ name: z.string().min(2), code: z.string().min(2) })
 
 export async function GET() {
-  const saccos = await prisma.sacco.findMany({ include: { branches: true } })
+  const saccos = await prisma.sacco.findMany({ include: { clusters: true } })
   return NextResponse.json({ saccos })
 }
 

@@ -8,12 +8,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   let member = await prisma.member.findUnique({
     where: { id: idRaw },
-    include: { user: true, branch: true, loans: true }
+    include: { user: true, cluster: true, loans: true }
   })
   if (!member) {
     member = await prisma.member.findUnique({
       where: { nationalId: idRaw },
-      include: { user: true, branch: true, loans: true }
+      include: { user: true, cluster: true, loans: true }
     })
   }
 

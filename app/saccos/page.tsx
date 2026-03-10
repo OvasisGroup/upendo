@@ -44,7 +44,7 @@ export default async function SaccosPage() {
             <div className="flex-1 font-medium">
               Welcome, <span className="text-muted-foreground">{me.email}</span>
             </div>
-            <NotificationBell />
+            <NotificationBell userId={me.id} />
             <ProfileMenu email={me.email} />
           </header>
 

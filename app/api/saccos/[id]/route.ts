@@ -8,7 +8,7 @@ const patchSchema = z.object({ name: z.string().min(2).optional(), code: z.strin
 
 export async function GET(_: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params
-  const sacco = await prisma.sacco.findUnique({ where: { id }, include: { branches: true } })
+  const sacco = await prisma.sacco.findUnique({ where: { id }, include: { clusters: true } })
   if (!sacco) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json({ sacco })
 }

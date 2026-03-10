@@ -52,7 +52,7 @@ export default async function SettingsPage() {
             <div className="flex-1 font-medium">
               System Settings
             </div>
-            <NotificationBell />
+            <NotificationBell userId={me.id} />
             <ProfileMenu email={me.email} />
           </header>
 

@@ -49,7 +49,7 @@ export default async function ClustersPage() {
             <div className="flex-1 font-medium">
               Clusters
             </div>
-            <NotificationBell />
+            <NotificationBell userId={me.id} />
             <ProfileMenu email={me.email} />
           </header>
 
