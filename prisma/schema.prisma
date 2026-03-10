@@ -1,0 +1,225 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CHAIRMAN
+  SECRETARY
+  TREASURER
+  ADMINISTRATOR
+  MEMBER
+}
+
+enum LoanStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  DISBURSED
+  COMPLETED
+  DEFAULTED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ProductType {
+  LOAN
+  SAVINGS
+}
+
+enum NotificationType {
+  SMS
+  EMAIL
+  IN_APP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum PaymentMethod {
+  MPESA
+  BANK
+  CASH
+}
+
+enum PaymentStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+}
+
+model Sacco {
+  id        String    @id @default(uuid())
+  name      String
+  code      String    @unique
+  clusters  Cluster[]
+  createdAt DateTime  @default(now())
+}
+
+model Cluster {
+  id        String   @id @default(uuid())
+  saccoId   String
+  name      String
+  region    String
+  sacco     Sacco    @relation(fields: [saccoId], references: [id])
+  members   Member[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  phone     String?  @unique
+  password  String
+  role      Role
+  isActive  Boolean  @default(true)
+  isOwner   Boolean  @default(false)
+  member    Member?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Member {
+  id         String           @id @default(uuid())
+  userId     String?          @unique
+  clusterId  String?
+  fullName   String
+  nationalId String           @unique
+  phone      String
+  status     String           @default("PENDING")
+  user       User?            @relation(fields: [userId], references: [id])
+  cluster    Cluster?         @relation(fields: [clusterId], references: [id])
+  loans      Loan[]
+  approvals  MemberApproval[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}
+
+model Product {
+  id               String      @id @default(uuid())
+  name             String
+  type             ProductType
+  interestRate     Float
+  repaymentPeriod  Int
+  repaymentPercent Float
+  loans            Loan[]
+  createdAt        DateTime    @default(now())
+}
+
+model Loan {
+  id           String              @id @default(uuid())
+  memberId     String
+  productId    String
+  principal    Float
+  interestRate Float
+  repaymentPct Float
+  status       LoanStatus          @default(DRAFT)
+  member       Member              @relation(fields: [memberId], references: [id])
+  product      Product             @relation(fields: [productId], references: [id])
+  approvals    LoanApproval[]
+  repayments   Repayment[]
+  schedule     RepaymentSchedule[]
+  createdAt    DateTime            @default(now())
+}
+
+model LoanApproval {
+  id         String         @id @default(uuid())
+  loanId     String
+  approverId String
+  role       Role
+  status     ApprovalStatus @default(PENDING)
+  loan       Loan           @relation(fields: [loanId], references: [id])
+
+  @@unique([loanId, role], name: "loanId_role")
+}
+
+model MemberApproval {
+  id         String         @id @default(uuid())
+  memberId   String
+  approverId String
+  role       Role
+  status     ApprovalStatus @default(PENDING)
+  member     Member         @relation(fields: [memberId], references: [id])
+
+  @@unique([memberId, role], name: "memberId_role")
+}
+
+model RepaymentSchedule {
+  id            String   @id @default(uuid())
+  loanId        String
+  installmentNo Int
+  dueDate       DateTime
+  principal     Float
+  interest      Float
+  totalDue      Float
+  isPaid        Boolean  @default(false)
+  loan          Loan     @relation(fields: [loanId], references: [id])
+}
+
+model Repayment {
+  id           String   @id @default(uuid())
+  loanId       String
+  amountPaid   Float
+  balanceAfter Float
+  paymentDate  DateTime
+  loan         Loan     @relation(fields: [loanId], references: [id])
+}
+
+model PaymentTransaction {
+  id          String        @id @default(uuid())
+  memberId    String
+  loanId      String?
+  amount      Float
+  method      PaymentMethod
+  reference   String        @unique
+  status      PaymentStatus
+  rawResponse Json?
+  createdAt   DateTime      @default(now())
+}
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  status    NotificationStatus @default(PENDING)
+  createdAt DateTime           @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+}
+
+model ApprovalQuorum {
+  id            String   @id @default(uuid())
+  entity        String
+  requiredRoles Role[]
+  minApprovals  Int
+  createdAt     DateTime @default(now())
+}
