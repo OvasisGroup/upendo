@@ -23,8 +23,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 border p-6 rounded-lg">
-        <div className="flex justify-center mb-4">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="flex justify-center">
           <Image 
             src="/images/upendo.svg" 
             alt="Upendo Logo" 
@@ -33,8 +33,9 @@ export default function LoginPage() {
             priority
           />
         </div>
-        <h1 className="text-xl font-semibold">Login</h1>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        <form onSubmit={onSubmit} className="w-full space-y-4 border p-6 rounded-lg">
+          <h1 className="text-xl font-semibold">Login</h1>
+          {error && <p className="text-red-600 text-sm">{error}</p>}
         <div>
           <label className="block text-sm mb-1">Email</label>
           <input value={email} onChange={e=>setEmail(e.target.value)} className="w-full border rounded px-3 py-2" type="email" required />
@@ -45,6 +46,7 @@ export default function LoginPage() {
         </div>
         <button className="w-full bg-black text-white rounded py-2">Sign in</button>
       </form>
+      </div>
     </div>
   )
 }
