@@ -8,10 +8,11 @@ const updateSchema = z.object({
   isActive: z.boolean().optional(),
 })
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
   if (!session || !session.isOwner) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  const id = decodeURIComponent(params.id)
+  const { id: rawId } = await params
+  const id = decodeURIComponent(rawId)
   const body = await req.json()
   const data = updateSchema.parse(body)
 
